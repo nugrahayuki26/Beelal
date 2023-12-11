@@ -172,4 +172,127 @@ class Menu extends CI_Controller
 		// 
 		// 
 	}
+
+	public function usermanagement()
+	{
+        $data['menu'] = $this->db->get_where('user')->result_array();
+		$data['role'] = $this->db->get_where('user_role')->result_array();
+		$data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
+		$data['title_page'] = "User Management";
+		
+		$this->form_validation->set_rules('email', 'email', 'required|trim|valid_email|is_unique[user.email]');
+		
+		if ($this->form_validation->run() == false) {
+			$this->load->view('templates/sitemain/header', $data);
+			$this->load->view('templates/sitemain/sidebar');
+			$this->load->view('templates/sitemain/topbar');
+			$this->load->view('menu/usermanagement');
+			$this->load->view('templates/sitemain/footer');
+		} else {
+		    $email  = $this->input->post('email');
+		    
+		    $is_active1 = $this->input->post('is_active');
+    		if (is_null($is_active1)) {
+    			$is_active1 = 0;
+    		}
+    		
+    		$config['upload_path']          = './assets/img/profile/';
+			$config['allowed_types']        = 'jpg|png|jpeg';
+			$config['max_size']             = '2000';
+    		$config['encrypt_name']         = TRUE;
+    		
+    		$this->load->library('upload', $config);
+    
+            $this->upload->do_upload('image');
+            $image = $this->upload->data('file_name');
+            
+            $query = [
+    			'name' 			=> htmlspecialchars($this->input->post('name', true)),
+    			'email' 		=> $email,
+        	    'password' 		=> password_hash($this->input->post('password', true), PASSWORD_DEFAULT),
+        	    'image' 		=> $image,
+        	    'role_id'       => $this->input->post('role_id'),
+        	    'date_create'   => time(),
+    			'is_active'     => $is_active1
+    		];
+    		
+		    $this->db->insert('user', $query);
+			$this->Flasher_model->flashdata('Data User telah ditambahkan', 'Succes', 'success');
+			redirect('menu/usermanagement');
+		}
+	}
+	
+	public function userdelete($id = -1)
+	{
+		// id diperiksa apakah data ada atau tidak
+		if (is_null($this->db->get_where('user', ['id' => $id])->row_array())) {
+			$this->Flasher_model->flashdata('Data tidak bisa dihapus','Failed','danger');
+			redirect('menu/usermanagement');
+		}else{
+			$this->db->where('id', $id);
+			$this->db->delete('user');
+			$this->Flasher_model->flashdata('Data dihapus','Succes','warning');
+			redirect('menu/usermanagement');
+		}
+	}
+
+	public function userdetail()
+	{
+		echo json_encode($this->db->get_where('user', ['id' => $this->input->post('id')])->row_array());
+	}
+
+	public function useredit()
+	{
+	    $id = $this->input->post('id');
+	    $email  = $this->input->post('email');
+	    $data['user'] = $this->db->get_where('user', ['id' => $id])->row_array();
+		// cek apakah ada data yang dikirimkan atau tidak
+		
+		
+		
+		if (is_null($this->input->post('id'))) {
+			redirect('menu/submenu');
+		}
+
+        if ($this->input->post('password')) {
+			$this->db->set('password', password_hash($this->input->post('password', true), PASSWORD_DEFAULT));
+		}
+		
+		$is_active1 = $this->input->post('is_active');
+		if (is_null($is_active1)) {
+			$is_active1 = 0;
+		}
+		
+		$file_upload = $_FILES['image'];
+		if ($file_upload['name'] != '') {
+			$config['upload_path'] = './assets/img/profile/';
+			$config['allowed_types'] = 'jpg|png|jpeg';
+			$config['max_size'] = '2000';
+			$this->load->library('upload', $config);
+			if ($this->upload->do_upload('image')) {
+				$old_image = $data['user']['image'];
+				if ($old_image != 'default.png') {
+					unlink(FCPATH . 'assets/img/profile/' . $old_image);
+				}
+				$new_image = $this->upload->data('file_name');
+				$this->db->set('image', $new_image);
+			} else {
+				$this->Flasher_model->flashdata($this->upload->display_errors(), 'Failed', 'danger');
+				redirect('user/edit');
+			}
+		}
+		
+		$query = [
+    			'name' 			=> htmlspecialchars($this->input->post('name', true)),
+    			'email' 		=> $email,
+        	    'role_id'       => $this->input->post('role_id'),
+        	    'date_create'   => time(),
+    			'is_active'     => $is_active1
+    		];
+		$this->db->set($query);
+		$this->db->where('id', $id);
+		$this->db->update('user');
+		$this->Flasher_model->flashdata('Data telah diubah','Succes','success');
+		redirect('menu/usermanagement');
+	}
 }
