@@ -34,6 +34,7 @@ CREATE TABLE `user` (
   `image` varchar(128) NOT NULL,
   `password` varchar(256) NOT NULL,
   `role_id` int(11) NOT NULL,
+  `kantor_id` int(11),
   `is_active` int(1) NOT NULL,
   `date_create` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
