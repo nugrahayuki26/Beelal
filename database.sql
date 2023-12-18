@@ -241,10 +241,10 @@ ALTER TABLE `m_pelanggan` ADD CONSTRAINT `m_pelanggan_id_status_pelanggan_fkey` 
 ALTER TABLE `m_pelanggan` ADD CONSTRAINT `m_pelanggan_id_posisi_administrasi_fkey` FOREIGN KEY (`id_posisi_administrasi`) REFERENCES `m_pos_administrasi`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `relasi_pelanggan` ADD CONSTRAINT `relasi_pelanggan_id_dari_pelanggan_fkey` FOREIGN KEY (`id_dari_pelanggan`) REFERENCES `m_pelanggan`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `relasi_pelanggan` ADD CONSTRAINT `relasi_pelanggan_id_dari_pelanggan_fkey` FOREIGN KEY (`id_dari_pelanggan`) REFERENCES `m_orang`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `relasi_pelanggan` ADD CONSTRAINT `relasi_pelanggan_id_ke_pelanggan_fkey` FOREIGN KEY (`id_ke_pelanggan`) REFERENCES `m_pelanggan`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `relasi_pelanggan` ADD CONSTRAINT `relasi_pelanggan_id_ke_pelanggan_fkey` FOREIGN KEY (`id_ke_pelanggan`) REFERENCES `m_orang`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `relasi_pelanggan` ADD CONSTRAINT `relasi_pelanggan_id_relasi_fkey` FOREIGN KEY (`id_relasi`) REFERENCES `m_relasi_pel`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
